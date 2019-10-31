@@ -8,7 +8,7 @@ terraform {
   backend "azurerm" {
     resource_group_name  = "remote_status_rg"
     storage_account_name = "pgtterraformstatus"
-    container_name       = "matchmaker-demo"
-    key                  = "matchmaking-demo.terraform.tfstate"
+    container_name       = "__application__"
+    key                  = "__environment__.__application__.terraform.tfstate"
   }
 }

@@ -13,8 +13,8 @@ locals {
 
 # Create a resource group
 resource "azurerm_resource_group" "main" {
-  name     = "100-MATCHMAKING-DEMO"
-  location = "North Europe"
+  name     = "${local.resource_group_name}"
+  location = "${var.location}"
   tags     = "${local.tags}"
 }
 
@@ -23,10 +23,13 @@ resource "random_string" "random" {
   special = false
   upper   = false
   number  = false
+  keepers = {
+    prefix = "${local.resource_prefix}"
+  }
 }
 
 resource "azurerm_storage_account" "main" {
-  name                     = "safunc${random_string.random.result}"
+  name                     = "${var.environment}${var.application}${random_string.random.result}"
   resource_group_name      = "${azurerm_resource_group.main.name}"
   location                 = "${azurerm_resource_group.main.location}"
   account_tier             = "Standard"
@@ -35,7 +38,7 @@ resource "azurerm_storage_account" "main" {
 }
 
 resource "azurerm_app_service_plan" "main" {
-  name                = "azure-functions-service-plan"
+  name                = "${local.resource_prefix}-functions-sp"
   location            = "${azurerm_resource_group.main.location}"
   resource_group_name = "${azurerm_resource_group.main.name}"
   kind                = "FunctionApp"
@@ -49,7 +52,7 @@ resource "azurerm_app_service_plan" "main" {
 }
 
 resource "azurerm_application_insights" "main" {
-  name                = "matchmaker-appinsights"
+  name                = "${local.resource_prefix}-appinsights"
   location            = "${azurerm_resource_group.main.location}"
   resource_group_name = "${azurerm_resource_group.main.name}"
   application_type    = "Node.JS"
@@ -58,12 +61,12 @@ resource "azurerm_application_insights" "main" {
 }
 
 resource "azurerm_function_app" "main" {
-  name                      = "matchmaker-${random_string.random.result}"
+  name                      = "${local.resource_prefix}-${random_string.random.result}"
   location                  = "${azurerm_resource_group.main.location}"
   resource_group_name       = "${azurerm_resource_group.main.name}"
   app_service_plan_id       = "${azurerm_app_service_plan.main.id}"
   storage_connection_string = "${azurerm_storage_account.main.primary_connection_string}"
-  version                   = "2"
+  version                   = "~2"
   site_config {
     always_on = true
     cors {
@@ -73,7 +76,7 @@ resource "azurerm_function_app" "main" {
 
   app_settings = {
     FUNCTIONS_WORKER_RUNTIME       = "node"
-    WEBSITE_NODE_DEFAULT_VERSION   = "~10"
+    WEBSITE_NODE_DEFAULT_VERSION   = "10.14.1"
     APPINSIGHTS_INSTRUMENTATIONKEY = "${azurerm_application_insights.main.instrumentation_key}"
   }
 
