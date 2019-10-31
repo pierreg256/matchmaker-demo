@@ -15,6 +15,7 @@ locals {
 resource "azurerm_resource_group" "main" {
   name     = "100-MATCHMAKING-DEMO"
   location = "North Europe"
+  tags     = "${local.tags}"
 }
 
 resource "random_string" "random" {
@@ -30,6 +31,7 @@ resource "azurerm_storage_account" "main" {
   location                 = "${azurerm_resource_group.main.location}"
   account_tier             = "Standard"
   account_replication_type = "LRS"
+  tags                     = "${local.tags}"
 }
 
 resource "azurerm_app_service_plan" "main" {
@@ -42,6 +44,8 @@ resource "azurerm_app_service_plan" "main" {
     tier = "Standard"
     size = "S1"
   }
+
+  tags = "${local.tags}"
 }
 
 resource "azurerm_application_insights" "main" {
@@ -49,6 +53,8 @@ resource "azurerm_application_insights" "main" {
   location            = "${azurerm_resource_group.main.location}"
   resource_group_name = "${azurerm_resource_group.main.name}"
   application_type    = "Node.JS"
+
+  tags = "${local.tags}"
 }
 
 resource "azurerm_function_app" "main" {
@@ -70,4 +76,6 @@ resource "azurerm_function_app" "main" {
     WEBSITE_NODE_DEFAULT_VERSION   = "~10"
     APPINSIGHTS_INSTRUMENTATIONKEY = "${azurerm_application_insights.main.instrumentation_key}"
   }
+
+  tags = "${local.tags}"
 }
