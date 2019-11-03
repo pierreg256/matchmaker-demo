@@ -75,7 +75,41 @@ resource "azurerm_function_app" "main" {
     FUNCTIONS_WORKER_RUNTIME       = "node"
     WEBSITE_NODE_DEFAULT_VERSION   = "10.14.1"
     APPINSIGHTS_INSTRUMENTATIONKEY = "${azurerm_application_insights.main.instrumentation_key}"
+    COSMOSDB_CONNECTION            = "${azurerm_cosmosdb_account.main.connection_strings[0]}"
   }
 
   tags = "${local.tags}"
+}
+
+resource "azurerm_cosmosdb_account" "main" {
+  name                = "${local.resource_prefix}-cosmosdb"
+  location            = "${azurerm_resource_group.main.location}"
+  resource_group_name = "${azurerm_resource_group.main.name}"
+  offer_type          = "Standard"
+  kind                = "GlobalDocumentDB"
+
+  consistency_policy {
+    consistency_level       = "BoundedStaleness"
+    max_interval_in_seconds = 10
+    max_staleness_prefix    = 200
+  }
+
+  geo_location {
+    prefix            = "${local.resource_prefix}-customid"
+    location          = "${azurerm_resource_group.main.location}"
+    failover_priority = 0
+  }
+}
+
+resource "azurerm_cosmosdb_sql_database" "maindb" {
+  name                = "${var.application}-db"
+  resource_group_name = "${azurerm_cosmosdb_account.main.resource_group_name}"
+  account_name        = "${azurerm_cosmosdb_account.main.name}"
+}
+
+resource "azurerm_cosmosdb_sql_container" "maincontainer" {
+  name                = "${var.application}-container"
+  resource_group_name = "${azurerm_cosmosdb_account.main.resource_group_name}"
+  account_name        = "${azurerm_cosmosdb_account.main.name}"
+  database_name       = "${azurerm_cosmosdb_sql_database.maindb.name}"
 }

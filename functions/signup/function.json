@@ -13,7 +13,7 @@
       "name": "res"
     },
     {
-      "name": "userLocation",
+      "name": "userProfile",
       "type": "cosmosDB",
       "databaseName": "matchmaker-db",
       "collectionName": "matchmaker-container",
