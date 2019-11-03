@@ -18,18 +18,8 @@ resource "azurerm_resource_group" "main" {
   tags     = "${local.tags}"
 }
 
-resource "random_string" "random" {
-  length  = 6
-  special = false
-  upper   = false
-  number  = false
-  keepers = {
-    prefix = "${local.resource_prefix}"
-  }
-}
-
 resource "azurerm_storage_account" "main" {
-  name                     = "${var.environment}${var.application}${random_string.random.result}"
+  name                     = "${var.environment}${var.application}"
   resource_group_name      = "${azurerm_resource_group.main.name}"
   location                 = "${azurerm_resource_group.main.location}"
   account_tier             = "Standard"
@@ -61,7 +51,7 @@ resource "azurerm_application_insights" "main" {
 }
 
 resource "azurerm_function_app" "main" {
-  name                      = "${local.resource_prefix}-${random_string.random.result}"
+  name                      = "${local.resource_prefix}-function-app"
   location                  = "${azurerm_resource_group.main.location}"
   resource_group_name       = "${azurerm_resource_group.main.name}"
   app_service_plan_id       = "${azurerm_app_service_plan.main.id}"
