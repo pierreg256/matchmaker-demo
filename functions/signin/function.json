@@ -5,7 +5,8 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["post"]
+      "methods": ["post"],
+      "route": "signin/{login}"
     },
     {
       "type": "http",
@@ -13,13 +14,13 @@
       "name": "res"
     },
     {
-      "name": "userLocation",
       "type": "cosmosDB",
+      "name": "user",
       "databaseName": "matchmaker-db",
       "collectionName": "matchmaker-container",
-      "createIfNotExists": false,
       "connectionStringSetting": "COSMOSDB_CONNECTION",
-      "direction": "out"
+      "direction": "in",
+      "Id": "{login}"
     }
   ]
 }
