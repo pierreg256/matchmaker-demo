@@ -28,10 +28,6 @@ resource "azurerm_storage_account" "web" {
   enable_https_traffic_only = true
   tags                      = "${local.tags}"
 
-  provisioner "local-exec" {
-    # https://github.com/terraform-providers/terraform-provider-azurerm/issues/1903
-    command = "az storage blob service-properties update --account-name ${azurerm_storage_account.web.name} --static-website --index-document index.html --404-document index.html"
-  }
 }
 
 resource "azurerm_storage_account" "main" {
