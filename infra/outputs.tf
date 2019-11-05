@@ -13,3 +13,8 @@ output "CosmosDBConnections" {
   value = "${azurerm_cosmosdb_account.main.connection_strings[0]}"
 }
 
+output "WebSite" {
+  value = "${azurerm_storage_account.web.primary_web_endpoint}"
+}
+
+

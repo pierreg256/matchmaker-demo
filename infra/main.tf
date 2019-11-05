@@ -18,6 +18,22 @@ resource "azurerm_resource_group" "main" {
   tags     = "${local.tags}"
 }
 
+resource "azurerm_storage_account" "web" {
+  name                      = "${var.environment}${var.application}web"
+  resource_group_name       = "${azurerm_resource_group.main.name}"
+  location                  = "${azurerm_resource_group.main.location}"
+  account_kind              = "StorageV2"
+  account_tier              = "Standard"
+  account_replication_type  = "LRS"
+  enable_https_traffic_only = true
+  tags                      = "${local.tags}"
+
+  provisioner "local-exec" {
+    # https://github.com/terraform-providers/terraform-provider-azurerm/issues/1903
+    command = "az storage blob service-properties update --account-name ${azurerm_storage_account.web.name} --static-website --index-document index.html --404-document index.html"
+  }
+}
+
 resource "azurerm_storage_account" "main" {
   name                     = "${var.environment}${var.application}sa"
   resource_group_name      = "${azurerm_resource_group.main.name}"
@@ -29,7 +45,6 @@ resource "azurerm_storage_account" "main" {
 
 resource "azurerm_storage_container" "apps" {
   name                  = "${var.application}-functions"
-  resource_group_name   = "${azurerm_resource_group.main.name}"
   storage_account_name  = "${azurerm_storage_account.main.name}"
   container_access_type = "private"
 }
