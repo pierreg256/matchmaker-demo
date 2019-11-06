@@ -1,6 +1,10 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import logo from "./logo.svg";
+import "./App.css";
+import { Config } from "./lib/utils/Config";
+
+const config = new Config();
+config.describe();
 
 function App() {
   return (
