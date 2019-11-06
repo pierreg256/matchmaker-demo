@@ -78,7 +78,8 @@ resource "azurerm_function_app" "main" {
   site_config {
     always_on = true
     cors {
-      allowed_origins = ["*"]
+      allowed_origins     = ["http://localhost:3000", "${azurerm_storage_account.web.primary_web_endpoint}"]
+      support_credentials = true
     }
   }
 
@@ -87,6 +88,7 @@ resource "azurerm_function_app" "main" {
     WEBSITE_NODE_DEFAULT_VERSION   = "10.14.1"
     APPINSIGHTS_INSTRUMENTATIONKEY = "${azurerm_application_insights.main.instrumentation_key}"
     COSMOSDB_CONNECTION            = "${azurerm_cosmosdb_account.main.connection_strings[0]}"
+    AzureSignalRConnectionString   = "${azurerm_signalr_service.main.primary_connection_string}"
   }
 
   tags = "${local.tags}"
@@ -123,4 +125,25 @@ resource "azurerm_cosmosdb_sql_container" "maincontainer" {
   resource_group_name = "${azurerm_cosmosdb_account.main.resource_group_name}"
   account_name        = "${azurerm_cosmosdb_account.main.name}"
   database_name       = "${azurerm_cosmosdb_sql_database.maindb.name}"
+}
+
+resource "azurerm_maps_account" "main" {
+  name                = "${local.resource_prefix}-maps-account"
+  resource_group_name = "${azurerm_resource_group.main.name}"
+  sku_name            = "s1"
+
+  tags = {
+    environment = "Test"
+  }
+}
+
+resource "azurerm_signalr_service" "main" {
+  name                = "${local.resource_prefix}-signalr"
+  location            = "${azurerm_resource_group.main.location}"
+  resource_group_name = "${azurerm_resource_group.main.name}"
+
+  sku {
+    name     = "Free_F1"
+    capacity = 1
+  }
 }

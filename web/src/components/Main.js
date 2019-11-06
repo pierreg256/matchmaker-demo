@@ -13,6 +13,8 @@ import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Link from "@material-ui/core/Link";
+import * as signalR from "@aspnet/signalr";
+import Config from "../lib/utils/Config";
 
 function Copyright() {
   return (
@@ -62,6 +64,16 @@ const styles = theme => ({
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 class Album extends Component {
+  componentDidMount() {
+    let connection = new signalR.HubConnectionBuilder()
+      .withUrl(Config.apiURL())
+      .build();
+
+    connection
+      .start()
+      .then(() => console.log("connected"))
+      .catch(e => console.log(e));
+  }
   render() {
     const { classes } = this.props;
     return (
