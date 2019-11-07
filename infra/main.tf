@@ -75,6 +75,7 @@ resource "azurerm_function_app" "main" {
   app_service_plan_id       = "${azurerm_app_service_plan.main.id}"
   storage_connection_string = "${azurerm_storage_account.main.primary_connection_string}"
   version                   = "~2"
+  https_only                = true
   site_config {
     always_on = true
     cors {
@@ -112,6 +113,7 @@ resource "azurerm_cosmosdb_account" "main" {
     location          = "${azurerm_resource_group.main.location}"
     failover_priority = 0
   }
+  tags = "${local.tags}"
 }
 
 resource "azurerm_cosmosdb_sql_database" "maindb" {
@@ -130,11 +132,9 @@ resource "azurerm_cosmosdb_sql_container" "maincontainer" {
 resource "azurerm_maps_account" "main" {
   name                = "${local.resource_prefix}-maps-account"
   resource_group_name = "${azurerm_resource_group.main.name}"
-  sku_name            = "s1"
+  sku_name            = "s0"
 
-  tags = {
-    environment = "Test"
-  }
+  tags = "${local.tags}"
 }
 
 resource "azurerm_signalr_service" "main" {
@@ -146,4 +146,5 @@ resource "azurerm_signalr_service" "main" {
     name     = "Free_F1"
     capacity = 1
   }
+  tags = "${local.tags}"
 }
