@@ -5,7 +5,7 @@
       "type": "httpTrigger",
       "direction": "in",
       "name": "req",
-      "methods": ["get", "post"]
+      "methods": ["post"]
     },
     {
       "type": "http",
@@ -13,11 +13,10 @@
       "name": "res"
     },
     {
-      "type": "signalRConnectionInfo",
-      "name": "connectionInfo",
-      "userId": "{headers.x-user-id}",
+      "type": "signalR",
+      "name": "signalRMessages",
       "hubName": "chat",
-      "direction": "in"
+      "direction": "out"
     }
   ]
 }

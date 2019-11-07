@@ -13,8 +13,10 @@ import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import Link from "@material-ui/core/Link";
-import * as signalR from "@aspnet/signalr";
+import * as signalR from "@microsoft/signalr";
 import Config from "../lib/utils/Config";
+import Auth from "../lib/utils/Auth";
+import { geolocated } from "react-geolocated";
 
 function Copyright() {
   return (
@@ -65,17 +67,70 @@ const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 class Album extends Component {
   componentDidMount() {
+    const options = {
+      /*accessTokenFactory: () => {
+        return "jwt token";
+      },*/
+      httpClient: {
+        post: (url, httpOptions) => {
+          httpOptions.headers = {
+            ...httpOptions.headers,
+            MyHeader: "NewHeader"
+          };
+          httpOptions.method = "POST";
+          httpOptions.url = url;
+
+          return fetch(url, httpOptions);
+        }
+      }
+    };
+    class myHttpClient extends signalR.DefaultHttpClient {
+      post(url, httpOptions) {
+        httpOptions.headers = {
+          ...httpOptions.headers,
+          "x-user-Id": Auth.login
+        };
+        return super.post(url, httpOptions);
+      }
+    }
+    let httpClient = new myHttpClient();
     let connection = new signalR.HubConnectionBuilder()
-      .withUrl(Config.apiURL())
+      .withUrl(Config.apiURL(), { httpClient })
+      .configureLogging(signalR.LogLevel.Information)
       .build();
+
+    connection.on("newMessage", msg => console.log("message:", msg));
 
     connection
       .start()
-      .then(() => console.log("connected"))
+      .then(() => {
+        console.log("connected");
+        fetch(`${Config.apiURL()}/messages`, {
+          method: "POST",
+          body: JSON.stringify({
+            recipient: Auth.login,
+            content: "hello world"
+          }),
+          headers: new Headers({
+            Authorization: `Bearer ${Auth.token}`
+          })
+        });
+      })
       .catch(e => console.log(e));
   }
   render() {
     const { classes } = this.props;
+    let map;
+    if (this.props.isGeolocationEnabled && this.props.coords) {
+      map = (
+        <img
+          src={`https://atlas.microsoft.com/map/static/png?subscription-key=0NwqCNtU7nafdZvWWrHMjrCRhbprAN6ZNwKwlUVzeD0&api-version=1.0&layer=basic&style=main&zoom=15&center=${this.props.coords.longitude},${this.props.coords.latitude}`}
+        />
+      );
+    } else {
+      map = <Typography>No GPS data available</Typography>;
+    }
+
     return (
       <React.Fragment>
         <CssBaseline />
@@ -83,7 +138,7 @@ class Album extends Component {
           <Toolbar>
             <CameraIcon className={classes.icon} />
             <Typography variant="h6" color="inherit" noWrap>
-              Album layout
+              Welcome, {Auth.login}
             </Typography>
           </Toolbar>
         </AppBar>
@@ -110,6 +165,7 @@ class Album extends Component {
                 contents, the creator, etc. Make it short and sweet, but not too
                 short so folks don&apos;t simply skip over it entirely.
               </Typography>
+              {map}
               <div className={classes.heroButtons}>
                 <Grid container spacing={2} justify="center">
                   <Grid item>
@@ -181,4 +237,10 @@ class Album extends Component {
   }
 }
 
-export default withStyles(styles)(Album);
+export default geolocated({
+  positionOptions: {
+    enableHighAccuracy: false
+  },
+  watchPosition: true,
+  userDecisionTimeout: Infinity
+})(withStyles(styles)(Album));

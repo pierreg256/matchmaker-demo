@@ -4,6 +4,7 @@ class Authentication {
   constructor() {
     this.token = localStorage.getItem("token");
     this.isAuthenticated = this.token !== null;
+    this.login = localStorage.getItem("login");
   }
 
   signup(login, password, cb) {
@@ -37,6 +38,7 @@ class Authentication {
       .then(result => result.json())
       .then(json => {
         localStorage.setItem("token", json.token);
+        localStorage.setItem("login", login);
         this.isAuthenticated = true;
         cb(null, json);
       })
