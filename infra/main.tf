@@ -79,7 +79,7 @@ resource "azurerm_function_app" "main" {
   site_config {
     always_on = true
     cors {
-      allowed_origins     = ["http://localhost:3000", "${azurerm_storage_account.web.primary_web_endpoint}"]
+      allowed_origins     = ["http://localhost:3000", replace("${azurerm_storage_account.web.primary_web_endpoint}", "/\\/$/", "")]
       support_credentials = true
     }
   }
