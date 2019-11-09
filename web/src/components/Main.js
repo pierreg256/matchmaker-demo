@@ -17,6 +17,7 @@ import * as signalR from "@microsoft/signalr";
 import Config from "../lib/utils/Config";
 import Auth from "../lib/utils/Auth";
 import { geolocated } from "react-geolocated";
+import Map from "./Map";
 
 function Copyright() {
   return (
@@ -166,6 +167,7 @@ class Album extends Component {
                 short so folks don&apos;t simply skip over it entirely.
               </Typography>
               {map}
+              <Map />
               <div className={classes.heroButtons}>
                 <Grid container spacing={2} justify="center">
                   <Grid item>

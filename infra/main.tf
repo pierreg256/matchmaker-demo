@@ -90,6 +90,7 @@ resource "azurerm_function_app" "main" {
     APPINSIGHTS_INSTRUMENTATIONKEY = "${azurerm_application_insights.main.instrumentation_key}"
     COSMOSDB_CONNECTION            = "${azurerm_cosmosdb_account.main.connection_strings[0]}"
     AzureSignalRConnectionString   = "${azurerm_signalr_service.main.primary_connection_string}"
+    MAPS_API_KEY                   = "${azurerm_maps_account.primary_access_key}"
   }
 
   tags = "${local.tags}"
