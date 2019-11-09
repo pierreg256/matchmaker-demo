@@ -7,6 +7,10 @@ class Authentication {
     this.login = localStorage.getItem("login");
   }
 
+  getToken() {
+    return this.token;
+  }
+
   signup(login, password, cb) {
     const url = `${Config.apiURL()}/signup`;
     let headers = new Headers();

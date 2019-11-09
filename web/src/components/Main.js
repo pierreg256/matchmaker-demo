@@ -124,9 +124,10 @@ class Album extends Component {
     let map;
     if (this.props.isGeolocationEnabled && this.props.coords) {
       map = (
-        <img
-          src={`https://atlas.microsoft.com/map/static/png?subscription-key=0NwqCNtU7nafdZvWWrHMjrCRhbprAN6ZNwKwlUVzeD0&api-version=1.0&layer=basic&style=main&zoom=15&center=${this.props.coords.longitude},${this.props.coords.latitude}`}
-        />
+        <Map
+          latitude={this.props.coords.latitude}
+          longitude={this.props.coords.longitude}
+        ></Map>
       );
     } else {
       map = <Typography>No GPS data available</Typography>;
@@ -167,7 +168,6 @@ class Album extends Component {
                 short so folks don&apos;t simply skip over it entirely.
               </Typography>
               {map}
-              <Map />
               <div className={classes.heroButtons}>
                 <Grid container spacing={2} justify="center">
                   <Grid item>

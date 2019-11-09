@@ -13,7 +13,30 @@ export default class Map extends Component {
     };
   }
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.fetchKey();
+  }
+
+  fetchKey() {
+    if (Auth.isAuthenticated) {
+      const apiUrl = `${Config.apiURL()}/config`;
+      const headers = new Headers({
+        Authorization: `Bearer ${Auth.getToken()}`
+      });
+      console.log(headers);
+      fetch(apiUrl, { headers })
+        .then(result => {
+          console.log(result);
+          if (result.ok === true) return result.json();
+          result.text().then(txt => console.log(txt));
+          throw result;
+        })
+        .then(json => this.setState({ key: json.maps_api_key }))
+        .catch(e => {
+          this.setState({ key: null });
+        });
+    }
+  }
 
   render() {
     if (!Auth.isAuthenticated) {
