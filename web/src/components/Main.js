@@ -68,23 +68,6 @@ const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 class Album extends Component {
   componentDidMount() {
-    const options = {
-      /*accessTokenFactory: () => {
-        return "jwt token";
-      },*/
-      httpClient: {
-        post: (url, httpOptions) => {
-          httpOptions.headers = {
-            ...httpOptions.headers,
-            MyHeader: "NewHeader"
-          };
-          httpOptions.method = "POST";
-          httpOptions.url = url;
-
-          return fetch(url, httpOptions);
-        }
-      }
-    };
     class myHttpClient extends signalR.DefaultHttpClient {
       post(url, httpOptions) {
         httpOptions.headers = {

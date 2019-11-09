@@ -31,7 +31,10 @@ export default class Map extends Component {
           result.text().then(txt => console.log(txt));
           throw result;
         })
-        .then(json => this.setState({ key: json.maps_api_key }))
+        .then(json => {
+          console.log(json);
+          this.setState({ key: json.maps_api_key });
+        })
         .catch(e => {
           this.setState({ key: null });
         });
@@ -42,9 +45,14 @@ export default class Map extends Component {
     if (!Auth.isAuthenticated) {
       return <Typography>Not Authenticated</Typography>;
     }
+
+    if (this.state.key === null) {
+      return <Typography>No key available</Typography>;
+    }
     return (
       <img
-        src={`https://atlas.microsoft.com/map/static/png?subscription-key=0NwqCNtU7nafdZvWWrHMjrCRhbprAN6ZNwKwlUVzeD0&api-version=1.0&layer=basic&style=main&zoom=15&center=${this.props.longitude},${this.props.latitude}`}
+        alt=""
+        src={`https://atlas.microsoft.com/map/static/png?subscription-key=${this.state.key}&api-version=1.0&layer=basic&style=main&zoom=15&center=${this.props.longitude},${this.props.latitude}`}
       />
     );
   }

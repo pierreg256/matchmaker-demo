@@ -12,7 +12,7 @@ import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
 import { withStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
-import { Redirect, useHistory, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 
 import Auth from "../lib/utils/Auth";
 
@@ -96,13 +96,7 @@ class SignIn extends Component {
 
   render() {
     const { classes } = this.props;
-    const {
-      login,
-      password,
-      loading,
-      loginError,
-      successfulLogin
-    } = this.state;
+    const { login, password, loading, loginError } = this.state;
 
     const errMsg = loginError ? (
       <Typography component="h5" align="center" color="error">

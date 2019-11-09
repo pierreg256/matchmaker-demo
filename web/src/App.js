@@ -1,7 +1,5 @@
 import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
-import Config from "./lib/utils/Config";
+//import "./App.css";
 import SignIn from "./components/SignIn";
 import Main from "./components/Main";
 import Auth from "./lib/utils/Auth";
@@ -10,10 +8,7 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
-  Redirect,
-  useHistory,
-  useLocation
+  Redirect
 } from "react-router-dom";
 
 // A wrapper for <Route> that redirects to the login
