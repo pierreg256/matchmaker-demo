@@ -11,6 +11,10 @@ class Authentication {
     return this.token;
   }
 
+  getLogin() {
+    return this.login;
+  }
+
   signup(login, password, cb) {
     const url = `${Config.apiURL()}/signup`;
     let headers = new Headers();

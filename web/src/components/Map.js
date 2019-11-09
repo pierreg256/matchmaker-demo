@@ -49,10 +49,14 @@ export default class Map extends Component {
     if (this.state.key === null) {
       return <Typography>No key available</Typography>;
     }
+    const { longitude, latitude } = this.props;
+    const pins = `&pins=default|coFF1493|la10 0|ls14||'${Auth.getLogin()}'${longitude} ${latitude}`;
+    const dimensions = "&height=512&width=512";
+    const zoom = "&zoom=14";
     return (
       <img
         alt=""
-        src={`https://atlas.microsoft.com/map/static/png?subscription-key=${this.state.key}&api-version=1.0&layer=basic&style=main&zoom=15&center=${this.props.longitude},${this.props.latitude}`}
+        src={`https://atlas.microsoft.com/map/static/png?subscription-key=${this.state.key}&api-version=1.0&layer=basic&style=main${zoom}${dimensions}&center=${this.props.longitude},${this.props.latitude}${pins}`}
       />
     );
   }
