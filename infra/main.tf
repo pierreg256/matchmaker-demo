@@ -91,6 +91,8 @@ resource "azurerm_function_app" "main" {
     COSMOSDB_CONNECTION            = "${azurerm_cosmosdb_account.main.connection_strings[0]}"
     AzureSignalRConnectionString   = "${azurerm_signalr_service.main.primary_connection_string}"
     MAPS_API_KEY                   = "${azurerm_maps_account.main.primary_access_key}"
+    SPEECH_ENDPOINT                = "${azurerm_cognitive_account.main.endpoint}"
+    SPEECH_KEY                     = "${azurerm_cognitive_account.main.primary_access_key}"
   }
 
   tags = "${local.tags}"
@@ -147,5 +149,19 @@ resource "azurerm_signalr_service" "main" {
     name     = "Free_F1"
     capacity = 1
   }
+  tags = "${local.tags}"
+}
+
+resource "azurerm_cognitive_account" "main" {
+  name                = "${local.resource_prefix}-speech"
+  location            = "${azurerm_resource_group.main.location}"
+  resource_group_name = "${azurerm_resource_group.main.name}"
+  kind                = "SpeechServices"
+
+  sku {
+    name = "S0"
+    tier = "Standard"
+  }
+
   tags = "${local.tags}"
 }
