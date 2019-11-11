@@ -3,6 +3,7 @@ import React from "react";
 import SignIn from "./components/SignIn";
 import Main from "./components/Main";
 import Auth from "./lib/utils/Auth";
+import SignUp from "./components/SignUp";
 
 import {
   BrowserRouter as Router,
@@ -40,7 +41,7 @@ function App() {
           <SignIn />
         </Route>
         <Route path="/signup">
-          <SignIn />
+          <SignUp />
         </Route>
         <PrivateRoute path="/">
           <Main />

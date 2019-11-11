@@ -2,10 +2,6 @@ import React, { Component } from "react";
 import AppBar from "@material-ui/core/AppBar";
 import Button from "@material-ui/core/Button";
 import CameraIcon from "@material-ui/icons/PhotoCamera";
-import Card from "@material-ui/core/Card";
-import CardActions from "@material-ui/core/CardActions";
-import CardContent from "@material-ui/core/CardContent";
-import CardMedia from "@material-ui/core/CardMedia";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import Grid from "@material-ui/core/Grid";
 import Toolbar from "@material-ui/core/Toolbar";
@@ -17,16 +13,17 @@ import * as signalR from "@microsoft/signalr";
 import Config from "../lib/utils/Config";
 import Auth from "../lib/utils/Auth";
 import { geolocated } from "react-geolocated";
-import Map from "./Map";
+import { Map, Friend } from "./Map";
+import API from "../lib/utils/API";
+import { withRouter } from "react-router-dom";
 
 function Copyright() {
   return (
     <Typography variant="body2" color="textSecondary" align="center">
-      {"Copyright © "}
-      <Link color="inherit" href="https://material-ui.com/">
-        Your Website
+      Brought to you with &hearts; by
+      <Link color="inherit" href="https://github.com/pierreg256">
+        pierreg256
       </Link>{" "}
-      {new Date().getFullYear()}
       {"."}
     </Typography>
   );
@@ -64,9 +61,21 @@ const styles = theme => ({
   }
 });
 
-const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
-
 class Album extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      friends: {}
+    };
+  }
+  handleMessage(msg) {
+    const { friends } = this.state;
+    if (msg.action === "new_friend") {
+      const { latitude, longitude } = msg.coords;
+      friends[msg.friendId] = { latitude, longitude };
+      this.setState({ friends });
+    }
+  }
   componentDidMount() {
     class myHttpClient extends signalR.DefaultHttpClient {
       post(url, httpOptions) {
@@ -83,37 +92,60 @@ class Album extends Component {
       .configureLogging(signalR.LogLevel.Information)
       .build();
 
-    connection.on("newMessage", msg => console.log("message:", msg));
+    connection.on("newMessage", msg => this.handleMessage(msg));
 
     connection
       .start()
       .then(() => {
         console.log("connected");
-        fetch(`${Config.apiURL()}/messages`, {
-          method: "POST",
-          body: JSON.stringify({
-            recipient: Auth.login,
-            content: "hello world"
-          }),
-          headers: new Headers({
-            Authorization: `Bearer ${Auth.token}`
-          })
-        });
       })
       .catch(e => console.log(e));
   }
+
+  reportLocation(coords) {
+    API.reportLocation(coords);
+  }
+
+  logOut() {
+    let { history } = this.props;
+    Auth.signout();
+    history.push("/");
+  }
+
   render() {
     const { classes } = this.props;
-    let map;
+    const { friends } = this.state;
+    let map, button;
     if (this.props.isGeolocationEnabled && this.props.coords) {
       map = (
         <Map
           latitude={this.props.coords.latitude}
           longitude={this.props.coords.longitude}
-        ></Map>
+        >
+          {Object.keys(friends).map((friend, key) => {
+            return (
+              <Friend
+                key={key}
+                friendId={friend}
+                longitude={friends[friend].longitude}
+                latitude={friends[friend].latitude}
+              />
+            );
+          })}
+        </Map>
+      );
+      button = (
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => this.reportLocation(this.props.coords)}
+        >
+          Report Location
+        </Button>
       );
     } else {
       map = <Typography>No GPS data available</Typography>;
+      button = <Typography>Unable to report location</Typography>;
     }
 
     return (
@@ -151,67 +183,23 @@ class Album extends Component {
               {map}
               <div className={classes.heroButtons}>
                 <Grid container spacing={2} justify="center">
+                  <Grid item>{button}</Grid>
                   <Grid item>
-                    <Button variant="contained" color="primary">
-                      Report Location
-                    </Button>
-                  </Grid>
-                  <Grid item>
-                    <Button variant="outlined" color="primary">
-                      Secondary action
+                    <Button
+                      variant="outlined"
+                      color="primary"
+                      onClick={() => this.logOut()}
+                    >
+                      Logout
                     </Button>
                   </Grid>
                 </Grid>
               </div>
             </Container>
-          </div>
-          <Container className={classes.cardGrid} maxWidth="md">
-            {/* End hero unit */}
-            <Grid container spacing={4}>
-              {cards.map(card => (
-                <Grid item key={card} xs={12} sm={6} md={4}>
-                  <Card className={classes.card}>
-                    <CardMedia
-                      className={classes.cardMedia}
-                      image="https://source.unsplash.com/random"
-                      title="Image title"
-                    />
-                    <CardContent className={classes.cardContent}>
-                      <Typography gutterBottom variant="h5" component="h2">
-                        Heading
-                      </Typography>
-                      <Typography>
-                        This is a media card. You can use this section to
-                        describe the content.
-                      </Typography>
-                    </CardContent>
-                    <CardActions>
-                      <Button size="small" color="primary">
-                        View
-                      </Button>
-                      <Button size="small" color="primary">
-                        Edit
-                      </Button>
-                    </CardActions>
-                  </Card>
-                </Grid>
-              ))}
-            </Grid>
-          </Container>
+          </div>{" "}
         </main>
         {/* Footer */}
         <footer className={classes.footer}>
-          <Typography variant="h6" align="center" gutterBottom>
-            Footer
-          </Typography>
-          <Typography
-            variant="subtitle1"
-            align="center"
-            color="textSecondary"
-            component="p"
-          >
-            Something here to give the footer a purpose!
-          </Typography>
           <Copyright />
         </footer>
         {/* End footer */}
@@ -220,10 +208,12 @@ class Album extends Component {
   }
 }
 
-export default geolocated({
-  positionOptions: {
-    enableHighAccuracy: false
-  },
-  watchPosition: true,
-  userDecisionTimeout: Infinity
-})(withStyles(styles)(Album));
+export default withRouter(
+  geolocated({
+    positionOptions: {
+      enableHighAccuracy: false
+    },
+    watchPosition: true,
+    userDecisionTimeout: Infinity
+  })(withStyles(styles)(Album))
+);

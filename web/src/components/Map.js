@@ -4,7 +4,15 @@ import Auth from "../lib/utils/Auth";
 import Typography from "@material-ui/core/Typography";
 import PropTypes from "prop-types";
 
-export default class Map extends Component {
+export class Friend extends Component {}
+
+Friend.propTypes = {
+  friendId: PropTypes.string.isRequired,
+  latitude: PropTypes.number.isRequired,
+  longitude: PropTypes.number.isRequired
+};
+
+export class Map extends Component {
   constructor(props) {
     super(props);
 
@@ -23,16 +31,13 @@ export default class Map extends Component {
       const headers = new Headers({
         Authorization: `Bearer ${Auth.getToken()}`
       });
-      console.log(headers);
       fetch(apiUrl, { headers })
         .then(result => {
-          console.log(result);
           if (result.ok === true) return result.json();
           result.text().then(txt => console.log(txt));
           throw result;
         })
         .then(json => {
-          console.log(json);
           this.setState({ key: json.maps_api_key });
         })
         .catch(e => {
@@ -49,10 +54,15 @@ export default class Map extends Component {
     if (this.state.key === null) {
       return <Typography>No key available</Typography>;
     }
+
     const { longitude, latitude } = this.props;
-    const pins = `&pins=default|coFF1493|la10 0|ls14||'${Auth.getLogin()}'${longitude} ${latitude}`;
+    let pins = `&pins=default|coFF1493|la10 0|ls14||'${Auth.getLogin()}'${longitude} ${latitude}`;
     const dimensions = "&height=512&width=512";
-    const zoom = "&zoom=14";
+    const zoom = "&zoom=13";
+
+    React.Children.map(this.props.children, (child, i) => {
+      pins += `|'${child.props.friendId}'${child.props.longitude} ${child.props.latitude}`;
+    });
     return (
       <img
         alt=""

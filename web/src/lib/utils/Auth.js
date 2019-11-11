@@ -7,6 +7,14 @@ class Authentication {
     this.login = localStorage.getItem("login");
   }
 
+  refreshStatus(login, token) {
+    localStorage.setItem("token", token);
+    this.token = token;
+    localStorage.setItem("login", login);
+    this.login = login;
+    this.isAuthenticated = this.token !== null;
+  }
+
   getToken() {
     return this.token;
   }
@@ -26,11 +34,18 @@ class Authentication {
       body: JSON.stringify({ login, password })
     };
 
+    localStorage.removeItem("token");
+    localStorage.removeItem("login");
+    this.isAuthenticated = false;
     fetch(url, init)
       .then(result => result.json())
-      .then(json => console.log(json))
-      .catch(e => console.log(e));
+      .then(json => {
+        this.refreshStatus(login, json.token);
+        cb(null, json);
+      })
+      .catch(e => cb(e));
   }
+
   signin(login, password, cb) {
     const url = `${Config.apiURL()}/signin/${login}`;
     let headers = new Headers();
@@ -45,12 +60,16 @@ class Authentication {
     fetch(url, init)
       .then(result => result.json())
       .then(json => {
-        localStorage.setItem("token", json.token);
-        localStorage.setItem("login", login);
-        this.isAuthenticated = true;
+        this.refreshStatus(login, json.token);
         cb(null, json);
       })
       .catch(e => cb(e));
+  }
+
+  signout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("login");
+    this.isAuthenticated = false;
   }
 }
 

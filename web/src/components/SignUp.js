@@ -10,10 +10,9 @@ import Grid from "@material-ui/core/Grid";
 import Box from "@material-ui/core/Box";
 import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
 import Typography from "@material-ui/core/Typography";
-import { withStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
+import { withStyles } from "@material-ui/core/styles";
 import { withRouter } from "react-router-dom";
-
 import Auth from "../lib/utils/Auth";
 
 function Copyright() {
@@ -47,25 +46,24 @@ const styles = theme => ({
   },
   form: {
     width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1)
+    marginTop: theme.spacing(3)
   },
   submit: {
     margin: theme.spacing(3, 0, 2)
   }
 });
 
-class SignIn extends Component {
+export class SignUp extends Component {
   constructor(props) {
     super(props);
-
     this.state = {
+      firstName: "",
+      lastName: "",
       login: "",
       password: "",
       loading: false,
-      loginError: false,
-      successfulLogin: false
+      loginError: false
     };
-
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
@@ -78,15 +76,16 @@ class SignIn extends Component {
   }
 
   handleSubmit(event) {
-    const { login, password } = this.state;
-    event.preventDefault();
-
+    const { firstName, lastName, login, password } = this.state;
     let { history } = this.props;
 
+    event.preventDefault();
+
     this.setState({ loading: true });
-    Auth.signin(login, password, (err, data) => {
+    Auth.signup(login, password, (err, data) => {
       this.setState({ loading: false });
       if (err) this.setState({ loginError: true });
+      console.log("data:", data);
       if (data) {
         this.setState({ loginError: false, successfulLogin: true });
         history.push("/");
@@ -96,11 +95,17 @@ class SignIn extends Component {
 
   render() {
     const { classes } = this.props;
-    const { login, password, loading, loginError } = this.state;
-
+    const {
+      firstName,
+      lastName,
+      login,
+      password,
+      loading,
+      loginError
+    } = this.state;
     const errMsg = loginError ? (
       <Typography component="h5" align="center" color="error">
-        Bad Password
+        Signup Error
       </Typography>
     ) : (
       <div />
@@ -113,43 +118,77 @@ class SignIn extends Component {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            Sign in
+            Sign up
           </Typography>
           <form
             className={classes.form}
             noValidate
             onSubmit={this.handleSubmit}
           >
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              id="login"
-              label="Login Name"
-              name="login"
-              autoComplete="login"
-              autoFocus
-              value={login}
-              onChange={this.handleChange}
-            />
-            <TextField
-              variant="outlined"
-              margin="normal"
-              required
-              fullWidth
-              name="password"
-              label="Password"
-              type="password"
-              id="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={this.handleChange}
-            />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  autoComplete="fname"
+                  name="firstName"
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="firstName"
+                  label="First Name"
+                  autoFocus
+                  value={firstName}
+                  onChange={this.handleChange}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="lastName"
+                  label="Last Name"
+                  name="lastName"
+                  autoComplete="lname"
+                  value={lastName}
+                  onChange={this.handleChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  id="login"
+                  label="Login Name"
+                  name="login"
+                  autoComplete="login"
+                  value={login}
+                  onChange={this.handleChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  variant="outlined"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={this.handleChange}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <FormControlLabel
+                  control={
+                    <Checkbox value="allowExtraEmails" color="primary" />
+                  }
+                  label="I want to receive inspiration, marketing promotions and updates via email."
+                />
+              </Grid>
+            </Grid>
             {errMsg}
             <Button
               type="submit"
@@ -159,23 +198,18 @@ class SignIn extends Component {
               className={classes.submit}
               disabled={loading}
             >
-              {loading ? "Loading..." : "Sign In"}
+              {loading ? "Loading..." : "Sign Up"}
             </Button>
-            <Grid container>
-              <Grid item xs>
-                <Link href="#" variant="body2">
-                  Forgot password?
-                </Link>
-              </Grid>
+            <Grid container justify="flex-end">
               <Grid item>
-                <Link href="/signup" variant="body2">
-                  {"Don't have an account? Sign Up"}
+                <Link href="/signin" variant="body2">
+                  Already have an account? Sign in
                 </Link>
               </Grid>
             </Grid>
           </form>
         </div>
-        <Box mt={8}>
+        <Box mt={5}>
           <Copyright />
         </Box>
       </Container>
@@ -183,4 +217,4 @@ class SignIn extends Component {
   }
 }
 
-export default withRouter(withStyles(styles)(SignIn));
+export default withRouter(withStyles(styles)(SignUp));

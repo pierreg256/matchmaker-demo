@@ -6,8 +6,8 @@ provider "azurerm" {
 
 terraform {
   backend "azurerm" {
-    resource_group_name  = "remote_status_rg"
-    storage_account_name = "pgtterraformstatus"
+    resource_group_name  = "__resourcegroup__"
+    storage_account_name = "__storageaccount__"
     container_name       = "__application__"
     key                  = "__environment__.__application__.terraform.tfstate"
   }
