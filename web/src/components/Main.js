@@ -16,6 +16,7 @@ import { geolocated } from "react-geolocated";
 import { Map, Friend } from "./Map";
 import API from "../lib/utils/API";
 import { withRouter } from "react-router-dom";
+import Speech from "../lib/utils/Speech";
 
 function Copyright() {
   return (
@@ -100,6 +101,9 @@ class Album extends Component {
         console.log("connected");
       })
       .catch(e => console.log(e));
+
+    //greetings
+    Speech.fetchSentence("hello world");
   }
 
   reportLocation(coords) {
