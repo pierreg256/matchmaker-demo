@@ -66,7 +66,8 @@ class Album extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      friends: {}
+      friends: {},
+      message: null
     };
   }
   handleMessage(msg) {
@@ -75,6 +76,20 @@ class Album extends Component {
       const { latitude, longitude } = msg.coords;
       friends[msg.friendId] = { latitude, longitude };
       this.setState({ friends });
+      Speech.fetchSentence(
+        `You have ${Object.keys(friends).length} friends online`,
+        (err, data) => {
+          if (data) {
+            console.log(data);
+            //this.setState({ message: data });
+            this.player.pause();
+            this.player.src = URL.createObjectURL(data);
+            this.player.play();
+          } else {
+            //this.setState({ message: null });
+          }
+        }
+      );
     }
   }
   componentDidMount() {
@@ -103,7 +118,16 @@ class Album extends Component {
       .catch(e => console.log(e));
 
     //greetings
-    Speech.fetchSentence("hello world");
+    Speech.fetchSentence(`Welcome ${Auth.getLogin()}`, (err, data) => {
+      if (data) {
+        console.log(data);
+        //this.setState({ message: data });
+        this.player.src = URL.createObjectURL(data);
+        this.player.play();
+      } else {
+        //this.setState({ message: null });
+      }
+    });
   }
 
   reportLocation(coords) {
@@ -154,6 +178,10 @@ class Album extends Component {
 
     return (
       <React.Fragment>
+        <audio ref={ref => (this.player = ref)}>
+          Your browser does not support the
+          <code>audio</code> element.
+        </audio>
         <CssBaseline />
         <AppBar position="relative">
           <Toolbar>
